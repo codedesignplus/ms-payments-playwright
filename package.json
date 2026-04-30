@@ -1,0 +1,29 @@
+{
+  "name": "ms-payments-playwright",
+  "version": "1.0.0",
+  "description": "E2E, smoke y regression tests para ms-payments con Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:suites": "playwright test tests/suites/",
+    "test:flows": "playwright test tests/flows/",
+    "test:staging": "cross-env ENV=staging playwright test",
+    "test:local": "cross-env ENV=local playwright test",
+    "test:ci": "cross-env ENV=staging playwright test --reporter=junit",
+    "report": "playwright show-report reports/html",
+    "codegen": "playwright codegen"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "@types/node": "^20.0.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.0",
+    "@grpc/proto-loader": "^0.7.0"
+  }
+}

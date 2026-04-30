@@ -1,0 +1,144 @@
+name: ms-payments — Playwright Tests
+
+on:
+  push:
+    branches: [main, staging, develop]
+  pull_request:
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente'
+        required: true
+        default: 'staging'
+        type: choice
+        options: [staging, local]
+      project:
+        description: 'Proyecto a correr'
+        required: true
+        default: 'smoke'
+        type: choice
+        options: [smoke, suites, flows, all]
+
+jobs:
+  # ── SMOKE: siempre, rápido (<1 min) ────────────────────────────────────────
+  smoke:
+    name: 🚨 Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ms-payments-playwright/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ms-payments-playwright
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: ms-payments-playwright
+
+      - name: Run Smoke Tests
+        run: npx playwright test --project smoke --reporter=list,junit
+        working-directory: ms-payments-playwright
+        env:
+          ENV: ${{ inputs.environment || 'staging' }}
+          AUTH_TOKEN: ${{ secrets.MS_PAYMENTS_AUTH_TOKEN }}
+
+      - name: Upload Smoke Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-results
+          path: |
+            ms-payments-playwright/reports/
+            ms-payments-playwright/test-results/
+
+  # ── REGRESSION: en PR y push a main ────────────────────────────────────────
+  regression:
+    name: 🔁 Regression — Suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: smoke
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ms-payments-playwright/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ms-payments-playwright
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: ms-payments-playwright
+
+      - name: Run All Suites
+        run: npx playwright test --project suites
+        working-directory: ms-payments-playwright
+        env:
+          ENV: staging
+          AUTH_TOKEN: ${{ secrets.MS_PAYMENTS_AUTH_TOKEN }}
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-report
+          path: ms-payments-playwright/reports/html/
+
+      - name: Publish JUnit Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Regression Test Results
+          path: ms-payments-playwright/reports/junit.xml
+          reporter: java-junit
+
+  # ── E2E FLOWS: solo en push a main/staging ──────────────────────────────────
+  e2e:
+    name: 🔄 E2E Flows
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: regression
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ms-payments-playwright/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ms-payments-playwright
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: ms-payments-playwright
+
+      - name: Run E2E Flows
+        run: npx playwright test --project flows
+        working-directory: ms-payments-playwright
+        env:
+          ENV: staging
+          AUTH_TOKEN: ${{ secrets.MS_PAYMENTS_AUTH_TOKEN }}
+
+      - name: Upload E2E Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report
+          path: ms-payments-playwright/reports/html/

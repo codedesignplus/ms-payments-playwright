@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Payments.gRpc";
+
+package Payment;
+
+service Payment {
+  rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
+}
+
+message InitiatePaymentRequest {
+  string id = 1;
+  string module = 2;
+  string referenceId = 3;
+  Amount subTotal = 4;
+  Amount tax = 5;
+  Amount total = 6;
+  string description = 7;
+  Payer payer = 8;
+  PaymentMethod paymentMethod = 9;
+  PaymentProvider provider = 10;
+}
+
+enum PaymentProvider {
+  None = 0;
+  Payu = 1;
+  MercadoPago = 2;
+}
+
+message PaymentMethod {
+  string type = 1;
+  optional CreditCard creditCard = 2;
+  optional Pse pse = 3;
+}
+
+message Payer {
+  string emailAddress = 1;
+  string fullName = 2;
+  optional Address billingAddress = 3;
+  string dniNumber = 4;
+  string contactPhone = 5;
+  string dniType = 6;
+}
+
+message Address {
+  string street = 1;
+  string country = 2;
+  string state = 3;
+  string city = 4;
+  string postalCode = 5;
+  string phone = 6;
+}
+
+message CreditCard {
+  string last4Digits = 1;
+  string cardHolderName = 2;
+  string creditCardTokenId = 3;
+  string expirationDate = 4;
+  string securityCode = 5;
+  int32 installmentsNumber = 6;
+}
+
+message Pse {
+  string pseCode = 1;
+  string typePerson = 2;
+  string pseResponseUrl = 3;
+}
+
+message Amount {
+  int64 value = 1;
+  google.protobuf.StringValue currency = 2;
+}
+
+enum NextActionType {
+  Redirect = 0;
+  DisplayWidget = 1;
+  WaitConfirmation = 2;
+}
+
+message InitiatePaymentResponse {
+  bool success = 1;
+  string payment_id = 2;
+  NextActionType next_action = 3;
+  google.protobuf.StringValue redirect_url = 4;
+  map<string, google.protobuf.StringValue> metadata = 5;
+}

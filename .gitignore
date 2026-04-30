@@ -1,0 +1,7 @@
+node_modules
+.settings-cache.json
+reports
+.env
+.env.local
+.env.staging
+test-results
