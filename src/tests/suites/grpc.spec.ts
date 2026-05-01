@@ -20,19 +20,26 @@ test.describe('🔗 gRPC — InitiatePayment', () => {
       subTotal: { value: '1000000',  currency: { value: 'COP' } },
       tax:      { value: '190000',  currency: { value: 'COP' } },
       total:    { value: '1190000',  currency: { value: 'COP' } },
+      buyer: {
+        buyerId: crypto.randomUUID(),
+        name: 'Conjunto Los Pinos SAS',
+        phone: '+5716543210',
+        email: 'conjunto@lospinos.com',
+        typeDocument: { code: 'NIT', name: 'Número de Identificación Tributaria' },
+        document: '900123456',
+      },
       payer: {
         fullName: 'Conjunto Los Pinos SAS',
         emailAddress: 'wliscano@codedesignplus.com',
         contactPhone: '+5716543210',
-        dniNumber: '900123456',
-        dniType: 'NIT',
+        typeDocument: { code: 'NIT', name: 'Número de Identificación Tributaria' },
+        documentNumber: '900123456',
         billingAddress: {
           street: 'Av El Dorado 69-76',
           country: 'CO',
           state: 'Cundinamarca',
           city: 'Bogota',
           postalCode: '110911',
-          phone: '6543210',
         },
       },
       paymentMethod: {
@@ -46,7 +53,7 @@ test.describe('🔗 gRPC — InitiatePayment', () => {
     });
 
     const res = await initiatePayment(grpc, req);
-    
+
     console.log('Response gRPC InitiatePayment:', res);
 
     expect(res.success).toBe(true);
@@ -78,6 +85,80 @@ test.describe('🔗 gRPC — InitiatePayment', () => {
     expect(res.next_action).toBe('WaitConfirmation');
   });
 
+  test('Buyer y Payer diferentes @smoke', async ({ grpc }) => {
+    const req = psRequest({
+      buyer: {
+        buyerId: crypto.randomUUID(),
+        name: 'Company ABC SAS',
+        phone: '+573001112222',
+        email: 'buyer@companyabc.com',
+        typeDocument: { code: 'NIT', name: 'Número de Identificación Tributaria' },
+        document: '900987654',
+        shippingAddress: {
+          street: 'Calle 100 #15-20',
+          country: 'CO',
+          state: 'Cundinamarca',
+          city: 'Bogota',
+          postalCode: '110111',
+        },
+      },
+      payer: {
+        fullName: 'Juan Carlos Pérez',
+        emailAddress: 'juan.perez@example.com',
+        contactPhone: '+573009998888',
+        typeDocument: { code: 'CC', name: 'Cédula de Ciudadanía' },
+        documentNumber: '1098765432',
+        billingAddress: {
+          street: 'Carrera 7 #80-50',
+          country: 'CO',
+          state: 'Cundinamarca',
+          city: 'Bogota',
+          postalCode: '110221',
+        },
+      },
+    });
+
+    const res = await initiatePayment(grpc, req);
+
+    console.log('Response gRPC InitiatePayment (buyer ≠ payer):', res);
+
+    expect(res.success).toBe(true);
+    expect(res.payment_id).toBeTruthy();
+  });
+
+  test('Solo buyer, sin payer → backend debe inferir payer del buyer', async ({ grpc }) => {
+    const buyerData = {
+      buyerId: crypto.randomUUID(),
+      name: 'Ana María Gómez',
+      phone: '+573005554444',
+      email: 'ana.gomez@example.com',
+      typeDocument: { code: 'CC', name: 'Cédula de Ciudadanía' },
+      document: '1122334455',
+      shippingAddress: {
+        street: 'Avenida 68 #45-30',
+        country: 'CO',
+        state: 'Cundinamarca',
+        city: 'Bogota',
+        postalCode: '111321',
+      },
+    };
+
+    const req = psRequest({
+      buyer: buyerData,
+      // NO enviamos payer - el backend debe usar la info del buyer
+    });
+
+    // Eliminar payer del request para esta prueba
+    delete req.payer;
+
+    const res = await initiatePayment(grpc, req);
+
+    console.log('Response gRPC InitiatePayment (solo buyer):', res);
+
+    expect(res.success).toBe(true);
+    expect(res.payment_id).toBeTruthy();
+  });
+
   test.describe('Errores de dominio', () => {
 
     test('total != subTotal+tax → error', async ({ grpc }) => {
@@ -98,11 +179,17 @@ test.describe('🔗 gRPC — InitiatePayment', () => {
     test('country=COL (3 letras) → error de dominio', async ({ grpc }) => {
       const req = psRequest({
         payer: {
-          fullName: 'Test', emailAddress: 'test@test.com',
-          contactPhone: '+573001234567', dniNumber: '123', dniType: 'CC',
+          fullName: 'Test',
+          emailAddress: 'test@test.com',
+          contactPhone: '+573001234567',
+          typeDocument: { code: 'CC', name: 'Cédula de Ciudadanía' },
+          documentNumber: '123',
           billingAddress: {
-            street: 'Calle 1', country: 'COL', state: 'Cundinamarca',
-            city: 'Bogota', postalCode: '110111', phone: '3001234',
+            street: 'Calle 1',
+            country: 'COL',
+            state: 'Cundinamarca',
+            city: 'Bogota',
+            postalCode: '110111',
           },
         },
       });

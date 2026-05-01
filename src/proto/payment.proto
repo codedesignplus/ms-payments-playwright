@@ -18,9 +18,10 @@ message InitiatePaymentRequest {
   Amount tax = 5;
   Amount total = 6;
   string description = 7;
-  Payer payer = 8;
-  PaymentMethod paymentMethod = 9;
-  PaymentProvider provider = 10;
+  Buyer buyer = 8;
+  Payer payer = 9;
+  PaymentMethod paymentMethod = 10;
+  PaymentProvider provider = 11;
 }
 
 enum PaymentProvider {
@@ -35,22 +36,36 @@ message PaymentMethod {
   optional Pse pse = 3;
 }
 
+message Buyer {
+  string buyerId = 1;
+  string name = 2;
+  string phone = 3;
+  string email = 4;
+  optional TypeDocument typeDocument = 5;
+  optional string document = 6;
+  optional Address shippingAddress = 7;
+}
+
 message Payer {
-  string emailAddress = 1;
-  string fullName = 2;
-  optional Address billingAddress = 3;
-  string dniNumber = 4;
-  string contactPhone = 5;
-  string dniType = 6;
+  string fullName = 1;
+  optional string emailAddress = 2;
+  optional string contactPhone = 3;
+  TypeDocument typeDocument = 4;
+  string documentNumber = 5;
+  Address billingAddress = 6;
+}
+
+message TypeDocument {
+  string code = 1;
+  string name = 2;
 }
 
 message Address {
   string street = 1;
   string country = 2;
-  string state = 3;
+  optional string state = 3;
   string city = 4;
-  string postalCode = 5;
-  string phone = 6;
+  optional string postalCode = 5;
 }
 
 message CreditCard {
@@ -73,6 +88,15 @@ message Amount {
   google.protobuf.StringValue currency = 2;
 }
 
+enum PaymentStatus {
+  Unknown = 0;
+  Initiated = 1;
+  Succeeded = 2;
+  Failed = 3;
+  Expired = 4;
+  Pending = 5;
+}
+
 enum NextActionType {
   Undefined = 0;
   Redirect = 1;
@@ -84,6 +108,6 @@ message InitiatePaymentResponse {
   bool success = 1;
   string payment_id = 2;
   NextActionType next_action = 3;
-  google.protobuf.StringValue redirect_url = 4;
-  map<string, google.protobuf.StringValue> metadata = 5;
+  google.protobuf.StringValue redirect_url = 4; 
+  map<string, google.protobuf.StringValue> metadata = 5; 
 }
