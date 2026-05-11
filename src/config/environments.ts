@@ -25,8 +25,8 @@ export interface EnvConfig {
 const staticConfigs: Record<EnvName, Omit<EnvConfig, 'authToken' | 'tokenUrl'>> = {
   staging: {
     name: 'staging',
-    baseUrl: 'https://services.kappali.com',
-    apiPath: '/ms-payments',
+    baseUrl: 'https://services.kappali.com/ms-payments/',  // Trailing slash is REQUIRED for URL resolution!
+    apiPath: '',
     grpcUrl: 'services.kappali.com:5001',
     grpcSecure: true,
     payuApiKey: '4Vj8eK4rloUd272L48hsrarnUA',
@@ -34,7 +34,7 @@ const staticConfigs: Record<EnvName, Omit<EnvConfig, 'authToken' | 'tokenUrl'>> 
   },
   local: {
     name: 'local',
-    baseUrl: 'http://localhost:5000',
+    baseUrl: 'http://localhost:5000/',  // Trailing slash for consistency
     apiPath: '',
     grpcUrl: 'localhost:5001',
     grpcSecure: false,

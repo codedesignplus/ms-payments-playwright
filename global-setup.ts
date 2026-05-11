@@ -71,7 +71,7 @@ async function fetchAccessToken(ctx: APIRequestContext, tokenUrl: string): Promi
  * @returns The token ID for the VISA card.
  */
 async function tokenizeVisaCard(apiCtx: APIRequestContext): Promise<string> {
-  const res = await apiCtx.post('/api/payment/tokenize', {
+  const res = await apiCtx.post('api/payment/tokenize', {
     data: {
       name:                 'APPROVED',
       identificationNumber: '32144457',
@@ -113,6 +113,7 @@ export default async function globalSetup() {
   const apiCtx = await request.newContext({
     baseURL:          `${config.baseUrl}${config.apiPath}`,
     extraHTTPHeaders: { Authorization: `Bearer ${token}` },
+    ignoreHTTPSErrors: true,
   });
 
   const visaTokenId = await tokenizeVisaCard(apiCtx);

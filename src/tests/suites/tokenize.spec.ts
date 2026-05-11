@@ -15,7 +15,7 @@ test.describe('🔑 Tokenize', () => {
   test.describe('Happy paths', () => {
 
     test('tokeniza VISA → token, número enmascarado, paymentMethod=VISA @smoke', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', { data: VISA_CARD });
+      const res = await api.post('api/payment/tokenize', { data: VISA_CARD });
 
       expect(res.status()).toBe(200);
 
@@ -30,7 +30,7 @@ test.describe('🔑 Tokenize', () => {
     });
 
     test('tokeniza MASTERCARD', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: {
           name: 'MARIA GARCIA',
           identificationNumber: '9876543210',
@@ -49,7 +49,7 @@ test.describe('🔑 Tokenize', () => {
     });
 
     test('tokeniza AMEX (15 dígitos)', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: {
           name: 'CARLOS RODRIGUEZ',
           identificationNumber: '1122334455',
@@ -69,35 +69,35 @@ test.describe('🔑 Tokenize', () => {
   test.describe('Validaciones — Expect 400', () => {
 
     test('número de tarjeta inválido (falla Luhn) → 400', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: { ...VISA_CARD, cardNumber: '1234567890123456' },
       });
       expect(res.status()).toBe(400);
     });
 
     test('formato de fecha MM/YYYY en lugar de YYYY/MM → 400', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: { ...VISA_CARD, expirationDate: '01/2028' },
       });
       expect(res.status()).toBe(400);
     });
 
     test('fecha de expiración mayor a 7 chars → 400', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: { ...VISA_CARD, expirationDate: '2028/012' },
       });
       expect(res.status()).toBe(400);
     });
 
     test('campos vacíos → 400', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: { ...VISA_CARD, name: '', identificationNumber: '', cardNumber: '', expirationDate: '' },
       });
       expect(res.status()).toBe(400);
     });
 
     test('paymentProvider=0 (None) → 400', async ({ api }) => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: { ...VISA_CARD, paymentProvider: 0 },
       });
       expect(res.status()).toBe(400);
@@ -107,7 +107,7 @@ test.describe('🔑 Tokenize', () => {
   test.describe('Autenticación', () => {
 
     test('sin token → 401 @smoke', async ({ anonApi }) => {
-      const res = await anonApi.post('/api/payment/tokenize', { data: VISA_CARD });
+      const res = await anonApi.post('api/payment/tokenize', { data: VISA_CARD });
       expect(res.status()).toBe(401);
     });
   });

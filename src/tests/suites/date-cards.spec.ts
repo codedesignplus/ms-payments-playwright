@@ -4,7 +4,7 @@ import { DateCardDto } from '../../types';
 test.describe('📅 Date Cards', () => {
 
   test('GET /api/datecards → 200 y array no vacío @smoke', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
 
     expect(res.status()).toBe(200);
     const dates: DateCardDto[] = await res.json();
@@ -12,7 +12,7 @@ test.describe('📅 Date Cards', () => {
   });
 
   test('no hay fechas pasadas', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
     const dates: DateCardDto[] = await res.json();
 
     const now = new Date();
@@ -29,7 +29,7 @@ test.describe('📅 Date Cards', () => {
   });
 
   test('retorna ~10 años de fechas (100–130 items)', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
     const dates: DateCardDto[] = await res.json();
 
     expect(dates.length).toBeGreaterThanOrEqual(100);
@@ -37,7 +37,7 @@ test.describe('📅 Date Cards', () => {
   });
 
   test('las fechas están en orden cronológico', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
     const dates: DateCardDto[] = await res.json();
 
     for (let i = 1; i < dates.length; i++) {
@@ -48,7 +48,7 @@ test.describe('📅 Date Cards', () => {
   });
 
   test('month entre 01-12 y year >= año actual', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
     const dates: DateCardDto[] = await res.json();
 
     const currentYear = new Date().getFullYear();
@@ -62,7 +62,7 @@ test.describe('📅 Date Cards', () => {
   });
 
   test('IDs son únicos', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/datecards');
+    const res = await anonApi.get('api/datecards');
     const dates: DateCardDto[] = await res.json();
 
     const ids = dates.map((d) => d.id);

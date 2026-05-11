@@ -4,7 +4,7 @@ import { BankDto } from '../../types';
 test.describe('🏦 Banks', () => {
 
   test('GET /api/bank → 200 y lista no vacía @smoke', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/bank');
+    const res = await anonApi.get('api/bank');
 
     expect(res.status()).toBe(200);
 
@@ -13,7 +13,7 @@ test.describe('🏦 Banks', () => {
   });
 
   test('cada banco tiene id (UUID), name, code, isActive', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/bank');
+    const res = await anonApi.get('api/bank');
     const banks: BankDto[] = await res.json();
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -27,7 +27,7 @@ test.describe('🏦 Banks', () => {
   });
 
   test('los códigos de banco son únicos', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/bank');
+    const res = await anonApi.get('api/bank');
     const banks: BankDto[] = await res.json();
 
     const codes = banks.map((b) => b.code);
@@ -37,7 +37,7 @@ test.describe('🏦 Banks', () => {
   });
 
   test('banco sandbox PSE (code=1022) existe @smoke', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/bank');
+    const res = await anonApi.get('api/bank');
     const banks: BankDto[] = await res.json();
 
     const sandbox = banks.find((b) => b.code === '1022');
@@ -45,7 +45,7 @@ test.describe('🏦 Banks', () => {
   });
 
   test('endpoint es AllowAnonymous — sin token retorna 200 (no 401/403)', async ({ anonApi }) => {
-    const res = await anonApi.get('/api/bank');
+    const res = await anonApi.get('api/bank');
 
     expect(res.status()).not.toBe(401);
     expect(res.status()).not.toBe(403);

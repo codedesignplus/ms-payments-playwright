@@ -25,7 +25,7 @@ test.describe('🔄 Flujo E2E — PSE completo', () => {
   // ─── STEP 1 ──────────────────────────────────────────────────────────────
   test('Step 1 — GET /api/bank → obtener banco sandbox PSE', async ({ anonApi }) => {
     await test.step('Llamar endpoint de bancos', async () => {
-      const res = await anonApi.get('/api/bank');
+      const res = await anonApi.get('api/bank');
       expect(res.status()).toBe(200);
 
       const banks: BankDto[] = await res.json();
@@ -46,7 +46,7 @@ test.describe('🔄 Flujo E2E — PSE completo', () => {
   // ─── STEP 2 ──────────────────────────────────────────────────────────────
   test('Step 2 — GET /api/datecards → verificar fechas futuras', async ({ anonApi }) => {
     await test.step('Llamar endpoint de fechas', async () => {
-      const res = await anonApi.get('/api/datecards');
+      const res = await anonApi.get('api/datecards');
       expect(res.status()).toBe(200);
 
       const dates: DateCardDto[] = await res.json();
@@ -66,7 +66,7 @@ test.describe('🔄 Flujo E2E — PSE completo', () => {
   // ─── STEP 3 ──────────────────────────────────────────────────────────────
   test('Step 3 — GET /api/paymentmethod → PSE disponible', async ({ anonApi }) => {
     await test.step('Verificar método PSE activo', async () => {
-      const res = await anonApi.get('/api/paymentmethod/Payu?methods=BankTransfer');
+      const res = await anonApi.get('api/paymentmethod/Payu?methods=BankTransfer');
       expect(res.status()).toBe(200);
 
       const methods: PaymentMethodDto[] = await res.json();
@@ -122,7 +122,7 @@ test.describe('🔄 Flujo E2E — PSE completo', () => {
     await test.step('Enviar webhook simulado', async () => {
       const body = buildWebhookBody(ctx.paymentId, '119000.0', '4');
 
-      const res = await anonApi.post('/api/payment/notify/Payu', {
+      const res = await anonApi.post('api/payment/notify/Payu', {
         data: body,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });

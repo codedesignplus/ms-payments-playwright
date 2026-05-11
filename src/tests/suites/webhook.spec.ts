@@ -10,7 +10,7 @@ async function postWebhook(
   provider: string,
   body: string,
 ) {
-  return ctx.post(`/api/payment/notify/${provider}`, {
+  return ctx.post(`api/payment/notify/${provider}`, {
     data: body,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });

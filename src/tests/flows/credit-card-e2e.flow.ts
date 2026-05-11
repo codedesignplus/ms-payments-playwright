@@ -18,7 +18,7 @@ test.describe('🔄 Flujo E2E — Credit Card Token (VISA)', () => {
   // ─── STEP 1 ──────────────────────────────────────────────────────────────
   test('Step 1 — POST /api/payment/tokenize → tokenizar VISA sandbox', async ({ api }) => {
     await test.step('Enviar tarjeta VISA sandbox a tokenizar', async () => {
-      const res = await api.post('/api/payment/tokenize', {
+      const res = await api.post('api/payment/tokenize', {
         data: {
           name: 'APPROVED',
           identificationNumber: '1234567890',
@@ -79,7 +79,7 @@ test.describe('🔄 Flujo E2E — Credit Card Token (VISA)', () => {
     await test.step('Enviar webhook Succeeded con firma MD5 correcta', async () => {
       const body = buildWebhookBody(ctx.paymentId, '119000.0', '4');
 
-      const res = await anonApi.post('/api/payment/notify/Payu', {
+      const res = await anonApi.post('api/payment/notify/Payu', {
         data: body,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
@@ -105,7 +105,7 @@ test.describe('🔄 Flujo E2E — Credit Card Token (VISA)', () => {
       const failedPaymentId = res.payment_id as string;
 
       const webhookBody = buildWebhookBody(failedPaymentId, '119000.0', '6');
-      const webhookRes = await anonApi.post('/api/payment/notify/Payu', {
+      const webhookRes = await anonApi.post('api/payment/notify/Payu', {
         data: webhookBody,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
