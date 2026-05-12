@@ -14,6 +14,7 @@
 import { test as base, APIRequestContext, request } from '@playwright/test';
 import { getConfig, EnvConfig } from '../config/environments';
 import { createGrpcClient, GrpcClient } from '../helpers/grpc-client';
+import { cleanupTracker } from '../helpers/cleanup-tracker';
 
 interface PaymentsFixtures {
   env: EnvConfig;
@@ -40,7 +41,25 @@ export const test = base.extend<PaymentsFixtures>({
       },
     });
 
+    // Usar el contexto en el test
     await use(ctx);
+
+    // CLEANUP: Eliminar pagos y tokens creados durante este test
+    const trackedPayments = cleanupTracker.getTrackedPayments();
+    const trackedTokens = cleanupTracker.getTrackedTokens();
+
+    // Nota: Payments generalmente no tienen endpoint DELETE, solo se marcan como cancelados/expirados
+    // Los tokens tampoco suelen eliminarse por seguridad (auditoría)
+    // Este cleanup es principalmente para que global-teardown los identifique si es necesario
+
+    // Limpiar el tracker
+    for (const paymentId of trackedPayments) {
+      cleanupTracker.removePayment(paymentId);
+    }
+    for (const tokenId of trackedTokens) {
+      cleanupTracker.removeToken(tokenId);
+    }
+
     await ctx.dispose();
   },
 

@@ -5,6 +5,8 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:ui:staging": "cross-env ENV=staging playwright test --ui",
+    "test:ui:local": "cross-env ENV=local playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:headed": "playwright test --headed",
     "test:smoke": "playwright test --grep @smoke",
