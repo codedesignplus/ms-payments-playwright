@@ -32,7 +32,7 @@ export const test = base.extend<PaymentsFixtures>({
   // Cliente HTTP autenticado con Bearer token
   api: async ({ env }, use) => {
     const ctx = await request.newContext({
-      baseURL: `${env.baseUrl}${env.apiPath}`,
+      baseURL: `${env.baseUrl}${env.apiPath}/`,
       ignoreHTTPSErrors: true,
       extraHTTPHeaders: {
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export const test = base.extend<PaymentsFixtures>({
   // Cliente HTTP anónimo (sin token — para AllowAnonymous)
   anonApi: async ({ env }, use) => {
     const ctx = await request.newContext({
-      baseURL: `${env.baseUrl}${env.apiPath}`,
+      baseURL: `${env.baseUrl}${env.apiPath}/`,
       ignoreHTTPSErrors: true,
       extraHTTPHeaders: {
         'Content-Type': 'application/json',
